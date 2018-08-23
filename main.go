@@ -10,7 +10,7 @@ import (
 
 // TODO(sneha): make backends configurable.
 var (
-	backends = []string{"http://www.cnn.com", "http://www.bbc.co.uk", "http://msn.com"}
+	backends = []string{"cnn.com", "bbc.co.uk", "msn.com"}
 )
 
 func main() {
@@ -27,9 +27,29 @@ func main() {
 		n := rand.Intn(len(backends))
 
 		// TODO(sneha): provide hostname and port, scheme for backends
+		// How do real lbs handle this?
+		// HTTP client is limiting us but realy want to demarcate
+		// a - which host to send the request to vs.
+		// b - which host is in the header that we want to maintain
+		fmt.Println(r)
+		fmt.Println(r.URL.String())
 		r.URL.Host = backends[n]
+		r.URL.Scheme = "https"
+		fmt.Println(r.URL.String())
+		req, err := http.NewRequest(r.Method, r.URL.String(), r.Body)
+		if err != nil {
+			// TODO(sneha): fix how this returns later.
+			http.Error(w, "cannot process request", http.StatusBadGateway)
+			return
+		}
 
-		res, err := client.Do(r)
+		for key, vals := range r.Header {
+			for _, val := range vals {
+				req.Header.Add(key, val)
+			}
+		}
+
+		res, err := client.Do(req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadGateway)
 			return
@@ -59,6 +79,6 @@ func main() {
 
 	})
 
-	log.Fatal(http.ListenAndServe(":80", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
