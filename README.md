@@ -54,4 +54,11 @@ clients ---- (send request)/(sends response) <-----> lb --(forwards request)----
       -> 4xx error (client caused) - transparently pass that back
       -> 5xx - (server caused) - return bad gateway or try with another backend
       -> 1xx/2xx/3xx - transparently pass that back
-      -> If there's a go error, return bad gateway response to the client. 
+      -> If there's a go error, return bad gateway response to the client.
+
+## Testing & TODOs:
+
+- Address all the todos in the code itself
+- Routing based on paths
+- Handling the loading of different origin sites
+- Add test cases - spin up new test servers as backends and ensure requests received
